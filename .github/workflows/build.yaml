@@ -22,12 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential device-tree-compiler
-
-      - name: Install Dependencies (LLVM)
-        uses: paulhuggett/install-llvm@ad897b4b1cf03f54c1218ec6d97a23ff4b10b870 # v1.0
-        with:
-          version: 18
+          sudo apt-get install -y build-essential device-tree-compiler gcc-10
 
       - name: Build
         run: |
@@ -56,5 +51,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: spike.tar.xz
-          path: spike.tar.xz
+          path: "${{ github.workspace }}/build/spike.tar.xz"
           compression-level: 0 # no compression
