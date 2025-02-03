@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential device-tree-compiler
+
+      - name: Install Dependencies (LLVM)
+        uses: paulhuggett/install-llvm@ad897b4b1cf03f54c1218ec6d97a23ff4b10b870 # v1.0
+        with:
+          version: 18
+
+      - name: Build
+        run: |
+          set -e
+          rm -rf build
+          mkdir build
+          cd build
+          mkdir install
+          CXXFLAGS="-Wnon-virtual-dtor" CFLAGS="-Werror -Wignored-qualifiers -Wunused-function -Wunused-parameter -Wunused-variable" "${{ github.workspace }}/configure" --prefix=`pwd`/install
+          make -j"$(nproc 2> /dev/null || sysctl -n hw.ncpu)"
+          make check
+          make install install-hdrs-list.h
+
+          # check that help message prints without error
+          install/bin/spike -h
+
+          # ci-tests/build-spike
+          #"${{ github.workspace }}/ci-tests/test-spike"
+
+      - name: Tar files
+        run: |
+          cd "${{ github.workspace }}/build"
+          tar -cvJf spike.tar.xz --transform s/install/spike/ install
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spike.tar.xz
+          path: spike.tar.xz
+          compression-level: 0 # no compression
