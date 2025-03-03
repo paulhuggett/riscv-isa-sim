@@ -45,7 +45,7 @@ jobs:
       - name: Tar files
         run: |
           cd "${{ github.workspace }}/build"
-          rm -r include/include install/lib
+          rm -r install/include install/lib
           tar -cvJf spike.tar.xz --transform s/install/spike/ install
 
       - name: Upload Artifact
