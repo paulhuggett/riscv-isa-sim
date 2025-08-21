@@ -37,5 +37,5 @@ steps:
       token:
         from_secret: API_TOKEN
       method: put
-      name: spike.tar.xz
+      name: ./build/spike.tar.xz
 ...
