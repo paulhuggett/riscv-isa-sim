@@ -1,7 +1,7 @@
 ---
 when:
   - event: push
-    branch: main
+    branch: master
 
 steps:
   - name: Install dependencies
